@@ -1,2 +1,2 @@
 # Spark
-### Smaple Doc
+### Sample Doc

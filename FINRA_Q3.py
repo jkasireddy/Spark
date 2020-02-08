@@ -1,0 +1,64 @@
+import findspark
+findspark.init()
+import pyspark
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.getOrCreate()
+
+
+# DATA Source https://www.kaggle.com/PromptCloudHQ/imdb-data
+
+
+
+
+movie_data_df = spark.read.format("csv").option("header", True).load("/Users/apple/Desktop/interview/actor_title.csv")
+movie_data_df.createOrReplaceTempView("movie_data")
+# movie_data_df.show()
+# movie_data_df.printSchema()
+
+
+top_10_actors_df = spark.sql("""
+    select * 
+    from
+    (
+        select 
+            g.Actor,
+            g.no_of_movies_acted,
+            dense_rank() over(order by no_of_movies_acted desc) as rank
+        from (select Actor, count(*) as no_of_movies_acted 
+            from movie_data group by Actor) as g
+) as f
+where f.rank <= 10""")
+
+print("top 10 actors count: {}".format(top_10_actors_df.count()))
+top_10_actors_df.show()
+
+
+select * from (select actor, count(actor) as number_of_movies from table group by actor) order by number_of_movies desc limt 10
+# OutPut
+
+
+# top 10 actors count: 144
+# +-------------------+------------------+----+
+# |              Actor|no_of_movies_acted|rank|
+# +-------------------+------------------+----+
+# |      Mark Wahlberg|                15|   1|
+# |       Hugh Jackman|                14|   2|
+# |     Christian Bale|                13|   3|
+# |          Brad Pitt|                13|   3|
+# | Michael Fassbender|                12|   4|
+# | Scarlett Johansson|                12|   4|
+# |      Anne Hathaway|                12|   4|
+# |  Robert Downey Jr.|                12|   4|
+# |        Johnny Depp|                12|   4|
+# |          Tom Hardy|                12|   4|
+# |     Channing Tatum|                12|   4|
+# |     Bradley Cooper|                11|   5|
+# |  Jennifer Lawrence|                11|   5|
+# |    Jake Gyllenhaal|                11|   5|
+# |      Gerard Butler|                11|   5|
+# |     Cate Blanchett|                11|   5|
+# |       Shia LaBeouf|                11|   5|
+# | Chloë Grace Moretz|                11|   5|
+# |    Charlize Theron|                10|   6|
+# |Matthew McConaughey|                10|   6|
+# +-------------------+------------------+----+
