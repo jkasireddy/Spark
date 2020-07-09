@@ -12,10 +12,5 @@ def solution(S):
                 ans += S[m]
                 print ans
 
-
-
-
-
-
 if __name__ == '__main__':
     solution("hot")
